@@ -8,12 +8,13 @@
   publish = "."
 
 # Bloco dedicado para a configuração das funções serverless.
+# Apontando para o diretório padrão do Netlify para máxima compatibilidade.
 [functions]
-  # Especifica o diretório onde todas as funções estão localizadas.
-  directory = "api/"
+  directory = "netlify/functions/"
 
 [[redirects]]
-  # Redireciona todas as chamadas da API para a nossa função 'cep'.
+  # A regra de redirecionamento permanece a mesma, pois o Netlify
+  # serve a função 'cep' no mesmo caminho público.
   from = "/consulta/*"
   to = "/.netlify/functions/cep/consulta/:splat"
   status = 200
