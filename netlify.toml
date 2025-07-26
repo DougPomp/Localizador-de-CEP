@@ -1,0 +1,15 @@
+# Arquivo de configuração para o deploy no Netlify
+
+[build]
+  # Comando para instalar as dependências Python
+  command = "pip install -r requirements.txt"
+  # Diretório que contém os arquivos estáticos (nosso index.html)
+  publish = "/"
+  # Diretório onde as funções serverless estão localizadas
+  functions = "api/"
+
+[[redirects]]
+  # Redireciona todas as chamadas da API para a nossa função Flask
+  from = "/consulta/*"
+  to = "/.netlify/functions/app/consulta/:splat"
+  status = 200
