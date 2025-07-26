@@ -5,14 +5,13 @@
   command = "pip install -r requirements.txt"
 
   # Diretório que contém os arquivos estáticos (index.html).
-  # "." significa a raiz do seu repositório.
   publish = "."
 
   # Diretório onde o Netlify procura por funções serverless.
   functions = "api/"
 
 [[redirects]]
-  # Redireciona todas as chamadas da API para a nossa função Flask.
+  # Redireciona todas as chamadas da API para a nossa função 'cep'.
   from = "/consulta/*"
-  to = "/.netlify/functions/app/consulta/:splat"
+  to = "/.netlify/functions/cep/consulta/:splat"
   status = 200
