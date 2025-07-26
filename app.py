@@ -27,9 +27,11 @@ def consulta_cep(cep):
     try:
         # Faz a requisição para a API ViaCEP
         response = requests.get(f'https://viacep.com.br/ws/{cep_sanitizado}/json/')
-        # Lança uma exceção para respostas com erro (ex: 404, 500)
-        response.raise_for_status()
         dados = response.json()
+
+        # Lança uma exceção para respostas com erro (ex: 404)
+        if "erro" in dados:
+            return jsonify({"erro": "CEP não foi encontrado!"}), 404
 
         # Retorna os dados obtidos como uma resposta JSON
         return jsonify(dados)
