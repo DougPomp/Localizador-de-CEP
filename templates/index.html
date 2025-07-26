@@ -26,21 +26,48 @@
             <div class="col-12 box-glassmorfismo mt-4 ml-2">
                 <h4 class="titulo-header-sub">Como Utilizar?</h4>
                 <p>
-                    Insira o CEP desejado no campo de texto e clique em "Localizar".
+                    Insira o CEP desejado no campo de texto e aguarde a exibição dos dados relacionados ao CEP
                     O sistema irá buscar as informações do CEP e exibir os resultados.
                 </p>
-                <form action="/api-via-cep" method="get">
+                <form>
                     <div class="row">
                         <div class="col-md-6">
                             <label for="cep" class="small">Digite aqui o CEP que deseja localizar</label>
-                            <input type="text" name="cep" class="form-control col-8" data-mask="00000-000" required>
+                            <input type="text" name="cep" id="cep" class="form-control col-8" data-mask="00000-000"
+                                required>
                         </div>
                         <div class="col-md-6 mt-4">
-                            <button type="submit" class="btn btn-warning cursor-botao">Localizar</button>
+                            <button type="submit" onclick="limpar_tabela_cep"
+                                class="btn btn-warning cursor-botao">Localizar Novo Cep</button>
                         </div>
                     </div>
                 </form>
             </div>
+        </div>
+        <div class="col-md-12 mt-4">
+            <table class="table table-striped table-dark border border-3">
+                <thead>
+                    <tr>
+                        <th>CEP</th>
+                        <th>Rua</th>
+                        <th>Bairro</th>
+                        <th>Cidade</th>
+                        <th>UF</th>
+                        <th>IBGE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <tr>
+                        <td id="td-cep"></td>
+                        <td id="td-rua"></td>
+                        <td id="td-bairro"></td>
+                        <td id="td-cidade"></td>
+                        <td id="td-uf"></td>
+                        <td id="td-ibge"></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
@@ -51,6 +78,43 @@
 <script>
     $(document).ready(function () {
         $('input[name="cep"]').mask('00000-000');
+
+        function limpa_tabela_cep() {
+            $("#td-cep, #td-rua, #td-bairro, #td-cidade, #td-uf, #td-ibge").text("");
+        }
+
+        $("#cep").blur(function () {
+            var cep = $(this).val().replace(/\D/g, '');
+
+            if (cep !== "") {
+                var validacep = /^[0-9]{8}$/;
+
+                if (validacep.test(cep)) {
+                    // Preenche com "..." enquanto carrega
+                    $("#td-cep").text(cep);
+                    $("#td-rua, #td-bairro, #td-cidade, #td-uf, #td-ibge").text("...");
+
+                    $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+                        if (!("erro" in dados)) {
+                            $("#td-cep").text(cep);
+                            $("#td-rua").text(dados.logradouro);
+                            $("#td-bairro").text(dados.bairro);
+                            $("#td-cidade").text(dados.localidade);
+                            $("#td-uf").text(dados.uf);
+                            $("#td-ibge").text(dados.ibge);
+                        } else {
+                            limpa_tabela_cep();
+                            alert("CEP não encontrado.");
+                        }
+                    });
+                } else {
+                    limpa_tabela_cep();
+                    alert("Formato de CEP inválido.");
+                }
+            } else {
+                limpa_tabela_cep();
+            }
+        });
     });
 </script>
 
