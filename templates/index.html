@@ -1,122 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Localizador VIA CEP - Zeronauta </title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../static/src/css/style.css" rel="stylesheet">
-
+    <title>🌍 Localizador de CEP</title>
+    <!-- Carrega o Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define a fonte Inter como padrão */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilização customizada para o placeholder */
+        .placeholder-white-70::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
 </head>
 
-<body>
-    <div class="container">
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <h1 class="text-center titulo-header">Localizador VIA CEP - Zeronauta</h1>
-            </div>
-            <div class="col-12 box-glassmorfismo mt-4">
-                <h4 class="titulo-header-sub">Sobre o Projeto:</h4>
-                <p>
-                    Este projeto faz parte do curso de Desenvolvimento Web da Zeronauta.
-                    O projeto foi desenvolvido utilizando Flask, Bootstrap e JQuery.
-                </p>
-            </div>
-            <div class="col-12 box-glassmorfismo mt-4 ml-2">
-                <h4 class="titulo-header-sub">Como Utilizar?</h4>
-                <p>
-                    Insira o CEP desejado no campo de texto e aguarde a exibição dos dados relacionados ao CEP
-                    O sistema irá buscar as informações do CEP e exibir os resultados.
-                </p>
-                <form>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="cep" class="small">Digite aqui o CEP que deseja localizar</label>
-                            <input type="text" name="cep" id="cep" class="form-control col-8" data-mask="00000-000"
-                                required>
-                        </div>
-                        <div class="col-md-6 mt-4">
-                            <button type="submit" onclick="limpar_tabela_cep"
-                                class="btn btn-warning cursor-botao">Localizar Novo Cep</button>
-                        </div>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+
+    <div class="container mx-auto flex items-center justify-center min-h-screen p-4">
+
+        <div class="w-full max-w-md">
+            <!-- Card principal com efeito de vidro -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold">🌍 Localizador de CEP</h1>
+                    <p class="text-white/80 mt-2">Digite um CEP para encontrar o endereço correspondente.</p>
+                </div>
+
+                <!-- Formulário de busca -->
+                <form id="cep-form" class="space-y-6">
+                    <div>
+                        <label for="cep-input" class="block mb-2 text-sm font-medium text-white/90">CEP</label>
+                        <input type="text" id="cep-input"
+                            class="w-full p-3 rounded-lg bg-white/10 border border-white/30 text-white placeholder-white-70 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition duration-300"
+                            placeholder="00000-000" required>
                     </div>
+                    <button type="submit"
+                        class="w-full p-3 rounded-lg bg-cyan-500 text-gray-900 font-bold hover:bg-cyan-400 transition-colors duration-300 flex items-center justify-center">
+                        <svg id="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search mr-2" viewBox="0 0 16 16">
+                          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                        </svg>
+                        <span id="button-text">Buscar Endereço</span>
+                        <!-- Ícone de carregamento (spinner) -->
+                        <div id="loader" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                    </button>
                 </form>
             </div>
-        </div>
-        <div class="col-md-12 mt-4">
-            <table class="table table-striped table-dark border border-3">
-                <thead>
-                    <tr>
-                        <th>CEP</th>
-                        <th>Rua</th>
-                        <th>Bairro</th>
-                        <th>Cidade</th>
-                        <th>UF</th>
-                        <th>IBGE</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                    <tr>
-                        <td id="td-cep"></td>
-                        <td id="td-rua"></td>
-                        <td id="td-bairro"></td>
-                        <td id="td-cidade"></td>
-                        <td id="td-uf"></td>
-                        <td id="td-ibge"></td>
-                    </tr>
-                </tbody>
-            </table>
+
+            <!-- Seção de Resultados e Erros -->
+            <div class="mt-6">
+                <!-- Card de Erro -->
+                <div id="error-div" class="hidden bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-xl" role="alert">
+                    <strong class="font-bold">Ops!</strong>
+                    <span id="error-message" class="block sm:inline"></span>
+                </div>
+
+                <!-- Card de Resultados -->
+                <div id="results-div" class="hidden bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20 space-y-4">
+                    <!-- O conteúdo será inserido aqui via JavaScript -->
+                </div>
+            </div>
+
         </div>
     </div>
-</body>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('input[name="cep"]').mask('00000-000');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cepForm = document.getElementById('cep-form');
+            const cepInput = document.getElementById('cep-input');
+            const resultsDiv = document.getElementById('results-div');
+            const errorDiv = document.getElementById('error-div');
+            const errorMessage = document.getElementById('error-message');
+            const loader = document.getElementById('loader');
+            const buttonText = document.getElementById('button-text');
+            const searchIcon = document.getElementById('search-icon');
 
-        function limpa_tabela_cep() {
-            $("#td-cep, #td-rua, #td-bairro, #td-cidade, #td-uf, #td-ibge").text("");
-        }
+            // Máscara para o input de CEP
+            cepInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                e.target.value = value.slice(0, 9);
+            });
 
-        $("#cep").blur(function () {
-            var cep = $(this).val().replace(/\D/g, '');
+            // Evento de submissão do formulário
+            cepForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const cep = cepInput.value.replace(/\D/g, '');
 
-            if (cep !== "") {
-                var validacep = /^[0-9]{8}$/;
-
-                if (validacep.test(cep)) {
-                    // Preenche com "..." enquanto carrega
-                    $("#td-cep").text(cep);
-                    $("#td-rua, #td-bairro, #td-cidade, #td-uf, #td-ibge").text("...");
-
-                    $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
-                        if (!("erro" in dados)) {
-                            $("#td-cep").text(cep);
-                            $("#td-rua").text(dados.logradouro);
-                            $("#td-bairro").text(dados.bairro);
-                            $("#td-cidade").text(dados.localidade);
-                            $("#td-uf").text(dados.uf);
-                            $("#td-ibge").text(dados.ibge);
-                        } else {
-                            limpa_tabela_cep();
-                            alert("CEP não encontrado.");
-                        }
-                    });
-                } else {
-                    limpa_tabela_cep();
-                    alert("Formato de CEP inválido.");
+                // Validação simples no frontend
+                if (cep.length !== 8) {
+                    displayError('Por favor, insira um CEP válido com 8 dígitos.');
+                    return;
                 }
-            } else {
-                limpa_tabela_cep();
+
+                // Exibe o loader e desabilita o botão
+                toggleLoading(true);
+                clearResults();
+
+                try {
+                    const response = await fetch(`/consulta/${cep}`);
+                    const data = await response.json();
+
+                    if (data.erro) {
+                        if (typeof data.erro === 'string') {
+                             displayError(data.erro); // Erro vindo do nosso backend
+                        } else {
+                             displayError('CEP não encontrado. Verifique o número digitado.'); // Erro vindo da API ViaCEP
+                        }
+                    } else {
+                        displayResults(data);
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição:', error);
+                    displayError('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
+                } finally {
+                    // Esconde o loader ao final da requisição
+                    toggleLoading(false);
+                }
+            });
+
+            function toggleLoading(isLoading) {
+                if (isLoading) {
+                    loader.classList.remove('hidden');
+                    buttonText.classList.add('hidden');
+                    searchIcon.classList.add('hidden');
+                    cepForm.querySelector('button').disabled = true;
+                } else {
+                    loader.classList.add('hidden');
+                    buttonText.classList.remove('hidden');
+                    searchIcon.classList.remove('hidden');
+                    cepForm.querySelector('button').disabled = false;
+                }
+            }
+
+            function displayError(message) {
+                errorMessage.textContent = message;
+                errorDiv.classList.remove('hidden');
+                resultsDiv.classList.add('hidden');
+            }
+
+            function clearResults() {
+                errorDiv.classList.add('hidden');
+                resultsDiv.classList.add('hidden');
+                resultsDiv.innerHTML = '';
+            }
+
+            function displayResults(data) {
+                resultsDiv.classList.remove('hidden');
+                errorDiv.classList.add('hidden');
+
+                const fields = [
+                    { label: 'CEP', value: data.cep },
+                    { label: 'Logradouro', value: data.logradouro },
+                    { label: 'Complemento', value: data.complemento },
+                    { label: 'Bairro', value: data.bairro },
+                    { label: 'Localidade', value: data.localidade },
+                    { label: 'UF', value: data.uf },
+                    { label: 'IBGE', value: data.ibge },
+                    { label: 'DDD', value: data.ddd }
+                ];
+
+                let htmlContent = '<h2 class="text-2xl font-bold text-center mb-6">Endereço Encontrado</h2>';
+
+                fields.forEach(field => {
+                    if (field.value) { // Só exibe o campo se ele tiver um valor
+                        htmlContent += `
+                            <div class="flex justify-between items-center border-b border-white/20 pb-2">
+                                <span class="text-white/80">${field.label}:</span>
+                                <span class="font-semibold text-right">${field.value}</span>
+                            </div>
+                        `;
+                    }
+                });
+
+                resultsDiv.innerHTML = htmlContent;
             }
         });
-    });
-</script>
-
+    </script>
+</body>
 
 </html>
