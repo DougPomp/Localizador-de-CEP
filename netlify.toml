@@ -10,12 +10,6 @@
   # Diretório onde o Netlify procura por funções serverless.
   functions = "api/"
 
-# Adiciona uma variável de ambiente para especificar explicitamente o handler da função.
-# Isso ajuda o Netlify a encontrar a aplicação Flask quando a detecção automática falha.
-# "cep.app" significa: no arquivo 'cep.py', use a variável 'app'.
-[context.production.environment]
-  AWS_LAMBDA_EXEC_WRAPPER = "cep.app"
-
 [[redirects]]
   # Redireciona todas as chamadas da API para a nossa função 'cep'.
   from = "/consulta/*"
