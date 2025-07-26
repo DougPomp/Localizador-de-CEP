@@ -7,8 +7,10 @@
   # Diretório que contém os arquivos estáticos (index.html).
   publish = "."
 
-  # Diretório onde o Netlify procura por funções serverless.
-  functions = "api/"
+# Bloco dedicado para a configuração das funções serverless.
+[functions]
+  # Especifica o diretório onde todas as funções estão localizadas.
+  directory = "api/"
 
 [[redirects]]
   # Redireciona todas as chamadas da API para a nossa função 'cep'.
